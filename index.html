@@ -1,0 +1,2120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Class Senior High School - Student Registration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <style>
+        :root {
+            --primary: #1a5d1a; /* Deep Green */
+            --secondary: #f9a826; /* Golden Yellow */
+            --accent: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light-green: #e8f5e8;
+            --light-yellow: #fef9e7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--light-green) 0%, var(--light-yellow) 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #0f4d0f 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, var(--secondary) 100%);
+            opacity: 0.2;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+        .logo p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        nav a:hover, nav a.active {
+            background-color: var(--secondary);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--secondary);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+        }
+        
+        .card-header {
+            border-bottom: 2px solid var(--light-green);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .card-header h2 i {
+            color: var(--secondary);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.05rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(249, 168, 38, 0.2);
+        }
+        
+        .photo-upload {
+            border: 2px dashed #ddd;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: var(--light-yellow);
+        }
+        
+        .photo-upload:hover {
+            border-color: var(--secondary);
+            background-color: rgba(249, 168, 38, 0.05);
+        }
+        
+        .photo-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-top: 15px;
+            display: none;
+            border: 3px solid var(--secondary);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 25px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #0f4d0f 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0f4d0f 0%, var(--primary) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(26, 93, 26, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #219653 100%);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: linear-gradient(135deg, #219653 0%, var(--success) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(39, 174, 96, 0.3);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--secondary) 0%, #e59400 100%);
+            color: var(--primary);
+        }
+        
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #e59400 0%, var(--secondary) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(249, 168, 38, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c0392b 0%, var(--danger) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 35px;
+            padding-top: 20px;
+            border-top: 2px solid var(--light-green);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Dashboard Styles */
+        .dashboard {
+            display: none;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            border-top: 5px solid var(--secondary);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .stat-card h3 {
+            font-size: 2.2rem;
+            margin: 15px 0;
+            color: var(--primary);
+        }
+        
+        .stat-card p {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 15px 18px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        th {
+            background: linear-gradient(135deg, var(--primary) 0%, #0f4d0f 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: var(--light-yellow);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .search-filter {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+        
+        .search-filter input, .search-filter select {
+            flex: 1;
+        }
+        
+        .login-container {
+            max-width: 450px;
+            margin: 80px auto;
+        }
+        
+        .login-form {
+            padding: 40px;
+        }
+        
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+        
+        .tab-container {
+            display: flex;
+            border-bottom: 2px solid var(--light-green);
+            margin-bottom: 25px;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 4px solid transparent;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .tab.active {
+            border-bottom: 4px solid var(--secondary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.registered {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .status-badge.unregistered {
+            background-color: var(--warning);
+            color: var(--primary);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .loading i {
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+        
+        /* PDF Preview Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 25px;
+            border-radius: 12px;
+            width: 95%;
+            max-width: 900px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+            border-top: 5px solid var(--secondary);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--light-green);
+            padding-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s;
+        }
+        
+        .close-btn:hover {
+            color: var(--danger);
+        }
+        
+        .pdf-preview {
+            background: white;
+            padding: 35px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 25px;
+            max-height: 70vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            background: linear-gradient(to bottom, white 0%, var(--light-yellow) 100%);
+        }
+        
+        .preview-header {
+            text-align: center;
+            margin-bottom: 35px;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 25px;
+        }
+        
+        .preview-header h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .preview-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .preview-section {
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        
+        .preview-section h3 {
+            color: var(--primary);
+            margin-bottom: 18px;
+            border-bottom: 2px solid var(--light-green);
+            padding-bottom: 10px;
+            font-size: 1.4rem;
+        }
+        
+        .preview-row {
+            display: flex;
+            margin-bottom: 12px;
+        }
+        
+        .preview-label {
+            font-weight: 600;
+            width: 200px;
+            color: var(--primary);
+        }
+        
+        .preview-value {
+            flex: 1;
+        }
+        
+        .preview-photo {
+            width: 120px;
+            height: 150px;
+            object-fit: cover;
+            border: 2px solid var(--secondary);
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .preview-subjects {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .subject-tag {
+            background-color: var(--light-green);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border-left: 3px solid var(--secondary);
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        /* Form enhancements */
+        .subjects-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .subject-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background-color: var(--light-yellow);
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .subject-checkbox:hover {
+            background-color: rgba(249, 168, 38, 0.2);
+        }
+        
+        .subject-checkbox input {
+            width: auto;
+        }
+        
+        @media print {
+            nav, .btn-group, .form-actions, .modal-actions {
+                display: none !important;
+            }
+            
+            .card {
+                box-shadow: none;
+            }
+            
+            .modal {
+                position: static;
+                background: white;
+            }
+            
+            .modal-content {
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+                box-shadow: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .search-filter {
+                flex-direction: column;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .preview-row {
+                flex-direction: column;
+                margin-bottom: 15px;
+            }
+            
+            .preview-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .actions {
+                flex-wrap: wrap;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--primary) 0%, #0f4d0f 100%);
+            color: white;
+            padding: 25px 0;
+            margin-top: 50px;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+        
+        .copyright {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            background: var(--success);
+        }
+        
+        .toast.error {
+            background: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <div class="logo-text">
+                    <h1>First Class Senior High School</h1>
+                    <p>Excellence in Education Since 2016</p>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-link active" data-target="registration">
+                        <i class="fas fa-user-plus"></i> Student Registration
+                    </a></li>
+                    <li><a href="#" class="nav-link" data-target="dashboard">
+                        <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Registration Form -->
+        <div id="registration" class="content-section active">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-user-plus"></i> Student Registration Form</h2>
+                </div>
+                <form id="studentForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="surname">Surname *</label>
+                            <input type="text" id="surname" name="surname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="otherName">Other Name</label>
+                            <input type="text" id="otherName" name="otherName">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dob">Date of Birth *</label>
+                            <input type="date" id="dob" name="dob" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender *</label>
+                            <select id="gender" name="gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="passportPhoto">Passport Photo *</label>
+                        <div class="photo-upload" id="photoUpload">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: var(--secondary);"></i>
+                            <p>Click to upload passport photo (JPEG, PNG)</p>
+                            <input type="file" id="passportPhoto" name="passportPhoto" accept="image/*" style="display: none;" required>
+                            <img id="photoPreview" class="photo-preview" src="" alt="Photo Preview">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contact">Contact Number *</label>
+                            <input type="tel" id="contact" name="contact" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="beceIndex">BECE Index Number *</label>
+                            <input type="text" id="beceIndex" name="beceIndex" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="completionYear">Year of Completion (BECE) *</label>
+                            <input type="number" id="completionYear" name="completionYear" min="2000" max="2030" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="program">Course/Program *</label>
+                            <select id="program" name="program" required>
+                                <option value="">Select Program</option>
+                                <option value="General Science">General Science</option>
+                                <option value="Agric Science">Agric Science</option>
+                                <option value="General Arts">General Arts</option>
+                                <option value="Home Economics">Home Economics</option>
+                                <option value="Business">Business</option>
+                                <option value="Visual Arts">Visual Arts</option>
+                                <option value="Technical">Technical</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Elective Subjects * (Select up to 4)</label>
+                        <div class="subjects-container" id="subjectsContainer">
+                            <!-- Elective subjects will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-warning" id="previewBtn">
+                                <i class="fas fa-eye"></i> Preview Form
+                            </button>
+                            <button type="button" class="btn btn-success" id="printBtn">
+                                <i class="fas fa-print"></i> Print Form
+                            </button>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="dashboard" class="content-section hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
+                    <button class="btn btn-danger" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+                
+                <div class="tab-container">
+                    <div class="tab active" data-tab="students">Manage Students</div>
+                    <div class="tab" data-tab="analytics">Analytics</div>
+                </div>
+                
+                <div class="tab-content active" id="students-tab">
+                    <div class="search-filter">
+                        <input type="text" id="searchInput" placeholder="Search by name...">
+                        <select id="courseFilter">
+                            <option value="">All Courses</option>
+                            <option value="General Science">General Science</option>
+                            <option value="Agric Science">Agric Science</option>
+                            <option value="General Arts">General Arts</option>
+                            <option value="Home Economics">Home Economics</option>
+                            <option value="Business">Business</option>
+                            <option value="Visual Arts">Visual Arts</option>
+                            <option value="Technical">Technical</option>
+                        </select>
+                        <select id="statusFilter">
+                            <option value="all">All Students</option>
+                            <option value="registered">Registered</option>
+                            <option value="unregistered">Unregistered</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <div id="loadingState" class="loading hidden">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading student data...</p>
+                        </div>
+                        <table id="studentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Program</th>
+                                    <th>BECE Index</th>
+                                    <th>Contact</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Student data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="analytics-tab">
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <i class="fas fa-users"></i>
+                            <h3 id="totalStudents">0</h3>
+                            <p>Total Students</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-user-check"></i>
+                            <h3 id="registeredStudents">0</h3>
+                            <p>Registered</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-user-clock"></i>
+                            <h3 id="unregisteredStudents">0</h3>
+                            <p>Unregistered</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-chart-pie"></i>
+                            <h3 id="programsCount">7</h3>
+                            <p>Programs</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-bar"></i> Students by Program</h3>
+                        </div>
+                        <div id="programChart" style="padding: 20px; text-align: center;">
+                            <p>Program distribution chart will be displayed here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login" class="content-section hidden">
+            <div class="card login-container">
+                <div class="login-form">
+                    <h2><i class="fas fa-lock"></i> Admin Login</h2>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="username">Email</label>
+                            <input type="email" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Preview Modal -->
+    <div id="pdfPreviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-pdf"></i> Student Registration Form Preview</h2>
+                <button class="close-btn" id="closePreview">&times;</button>
+            </div>
+            <div class="pdf-preview" id="pdfPreviewContent">
+                <!-- Preview content will be generated here -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="generatePdfBtn">
+                    <i class="fas fa-file-pdf"></i> Generate PDF
+                </button>
+                <button class="btn btn-success" id="printPreviewBtn">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <button class="btn btn-danger" id="closePreviewBtn">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Operation completed successfully</span>
+    </div>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-home"></i> Home</a>
+                <a href="#"><i class="fas fa-info-circle"></i> About Us</a>
+                <a href="#"><i class="fas fa-book"></i> Academics</a>
+                <a href="#"><i class="fas fa-phone"></i> Contact</a>
+            </div>
+            <div class="copyright">
+                &copy; 2023 First Class Senior High School. All rights reserved. | Powered By KingsNet Web Solutions.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ==================== FIREBASE CONFIGURATION ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBB0uLfgH7puGc7oYqlUjz-3p15Qxyz4mg",
+            authDomain: "reg-first-class-shs.firebaseapp.com",
+            projectId: "reg-first-class-shs",
+            storageBucket: "reg-first-class-shs.firebasestorage.app",
+            messagingSenderId: "452034593420",
+            appId: "1:452034593420:web:5245c578599b6682de71a9"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Initialize Firebase services
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        const auth = firebase.auth();
+
+        // Elective subjects data
+        const electiveSubjects = [
+            "Physics", "Chemistry", "Biology", "Elective Mathematics", "I.C.T",
+            "Crop Husbandry", "General Agriculture", "Animal Husbandry", "Economics",
+            "Literature In English", "History", "C. R. S", "Asante Twi", "Government",
+            "French", "Geography", "Cost Accounting", "Financial Accounting", 
+            "Business Management", "Food And Nutrition", "Management In Living", 
+            "G. K. A", "Clothing", "Picture Making", "Sculpture", "Graphics Design", "Leatherwork"
+        ];
+
+        // Global students array
+        let students = [];
+
+        // DOM elements
+        const navLinks = document.querySelectorAll('.nav-link');
+        const contentSections = document.querySelectorAll('.content-section');
+        const photoUpload = document.getElementById('photoUpload');
+        const passportPhoto = document.getElementById('passportPhoto');
+        const photoPreview = document.getElementById('photoPreview');
+        const studentForm = document.getElementById('studentForm');
+        const previewBtn = document.getElementById('previewBtn');
+        const printBtn = document.getElementById('printBtn');
+        const subjectsContainer = document.getElementById('subjectsContainer');
+        const searchInput = document.getElementById('searchInput');
+        const courseFilter = document.getElementById('courseFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const studentsTable = document.getElementById('studentsTable').querySelector('tbody');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const loginForm = document.getElementById('loginForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loadingState = document.getElementById('loadingState');
+        const pdfPreviewModal = document.getElementById('pdfPreviewModal');
+        const pdfPreviewContent = document.getElementById('pdfPreviewContent');
+        const closePreview = document.getElementById('closePreview');
+        const closePreviewBtn = document.getElementById('closePreviewBtn');
+        const generatePdfBtn = document.getElementById('generatePdfBtn');
+        const printPreviewBtn = document.getElementById('printPreviewBtn');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+
+        // ==================== TOAST NOTIFICATION ====================
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ==================== FIREBASE AUTHENTICATION ====================
+
+        // Check authentication state
+        function checkAuthState() {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    console.log('User is signed in:', user.email);
+                    localStorage.setItem('adminLoggedIn', 'true');
+                    const activeNav = document.querySelector('.nav-link.active');
+                    if (activeNav && activeNav.getAttribute('data-target') === 'dashboard') {
+                        showSection('dashboard');
+                        loadStudentData();
+                    }
+                } else {
+                    console.log('User is signed out');
+                    localStorage.removeItem('adminLoggedIn');
+                    const activeNav = document.querySelector('.nav-link.active');
+                    if (activeNav && activeNav.getAttribute('data-target') === 'dashboard') {
+                        showSection('login');
+                    }
+                }
+            });
+        }
+
+        // Admin login function
+        async function login() {
+            const email = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.querySelector('#loginForm button');
+            const originalText = loginBtn.innerHTML;
+
+            try {
+                // Show loading state
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                loginBtn.disabled = true;
+
+                // Sign in with email and password
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                
+                // Login successful
+                console.log('Login successful:', userCredential.user.email);
+                showSection('dashboard');
+                setActiveNav(document.querySelector('[data-target="dashboard"]'));
+                loadStudentData();
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                let errorMessage = 'Login failed. ';
+                
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage += 'Invalid email address.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage += 'This account has been disabled.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage += 'No account found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'Incorrect password.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                alert(errorMessage);
+            } finally {
+                // Reset button state
+                loginBtn.innerHTML = originalText;
+                loginBtn.disabled = false;
+            }
+        }
+
+        // Logout function
+        function logout() {
+            auth.signOut().then(() => {
+                console.log('User signed out successfully');
+                showSection('registration');
+                setActiveNav(document.querySelector('[data-target="registration"]'));
+            }).catch(error => {
+                console.error('Logout error:', error);
+                alert('Error during logout: ' + error.message);
+            });
+        }
+
+        // ==================== FIRESTORE DATA OPERATIONS ====================
+
+        // Submit student form to Firestore
+        async function submitForm() {
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
+
+            const submitBtn = studentForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+
+            try {
+                // Show loading state
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                submitBtn.disabled = true;
+
+                // Get form data
+                const formData = new FormData(studentForm);
+                const studentData = {
+                    surname: formData.get('surname'),
+                    firstName: formData.get('firstName'),
+                    otherName: formData.get('otherName'),
+                    dob: formData.get('dob'),
+                    gender: formData.get('gender'),
+                    contact: formData.get('contact'),
+                    beceIndex: formData.get('beceIndex'),
+                    completionYear: parseInt(formData.get('completionYear')),
+                    program: formData.get('program'),
+                    electives: Array.from(formData.getAll('electives')),
+                    status: 'unregistered',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Upload photo if exists
+                if (passportPhoto.files[0]) {
+                    const photoUrl = await uploadPhoto(passportPhoto.files[0], studentData);
+                    studentData.photoUrl = photoUrl;
+                }
+
+                // Save to Firestore
+                const docRef = await db.collection('students').add(studentData);
+                
+                console.log('Student registered with ID: ', docRef.id);
+                
+                // Reset form
+                studentForm.reset();
+                photoPreview.style.display = 'none';
+                
+                showToast('Student registration submitted successfully!');
+                
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                showToast('Error submitting form: ' + error.message, 'error');
+            } finally {
+                // Reset button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Upload photo to Firebase Storage
+        async function uploadPhoto(file, studentData) {
+            try {
+                // Create filename from student name
+                const fileName = `${studentData.surname}_${studentData.firstName}_${Date.now()}.jpg`;
+                const storageRef = storage.ref(`student-photos/${fileName}`);
+                
+                // Upload file
+                const snapshot = await storageRef.put(file);
+                
+                // Get download URL
+                const downloadURL = await snapshot.ref.getDownloadURL();
+                
+                console.log('Photo uploaded successfully:', downloadURL);
+                return downloadURL;
+            } catch (error) {
+                console.error('Error uploading photo:', error);
+                throw error;
+            }
+        }
+
+        // Load students data from Firestore
+        async function loadStudentData() {
+            try {
+                showLoadingState(true);
+                
+                const querySnapshot = await db.collection('students')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                students = [];
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    students.push({
+                        id: doc.id,
+                        ...data,
+                        // Convert Firestore timestamp to readable date
+                        createdAt: data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'N/A',
+                        dob: data.dob || 'N/A'
+                    });
+                });
+                
+                // Update UI
+                renderStudentTable();
+                updateStatistics();
+                
+            } catch (error) {
+                console.error('Error loading students:', error);
+                showToast('Error loading student data: ' + error.message, 'error');
+            } finally {
+                showLoadingState(false);
+            }
+        }
+
+        // Show/hide loading state
+        function showLoadingState(show) {
+            if (loadingState) {
+                loadingState.classList.toggle('hidden', !show);
+            }
+        }
+
+        // Toggle student registration status
+        async function toggleRegistration(studentId) {
+            try {
+                const student = students.find(s => s.id === studentId);
+                const newStatus = student.status === 'registered' ? 'unregistered' : 'registered';
+                
+                await db.collection('students').doc(studentId).update({
+                    status: newStatus,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                console.log(`Student ${studentId} status updated to: ${newStatus}`);
+                
+                // Reload data
+                loadStudentData();
+                
+                showToast(`Student ${newStatus === 'registered' ? 'registered' : 'unregistered'} successfully`);
+                
+            } catch (error) {
+                console.error('Error updating registration status:', error);
+                showToast('Error updating status: ' + error.message, 'error');
+            }
+        }
+
+        // ==================== STORAGE OPERATIONS ====================
+
+        // Download student photo - FIXED VERSION
+        async function downloadPhoto(studentId) {
+            try {
+                const student = students.find(s => s.id === studentId);
+                
+                if (!student.photoUrl) {
+                    showToast('No photo available for this student', 'error');
+                    return;
+                }
+
+                console.log('Downloading photo from:', student.photoUrl);
+                
+                // Create a temporary link to download the photo
+                const response = await fetch(student.photoUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch photo: ${response.status} ${response.statusText}`);
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                
+                // Extract file extension from the URL or use default
+                const fileExtension = student.photoUrl.split('.').pop().split('?')[0] || 'jpg';
+                a.download = `${student.surname}_${student.firstName}_photo.${fileExtension}`;
+                
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                console.log('Photo downloaded successfully');
+                showToast('Photo downloaded successfully');
+                
+            } catch (error) {
+                console.error('Error downloading photo:', error);
+                showToast('Error downloading photo: ' + error.message, 'error');
+                
+                // Fallback: Open in new tab if download fails
+                try {
+                    const student = students.find(s => s.id === studentId);
+                    if (student.photoUrl) {
+                        window.open(student.photoUrl, '_blank');
+                        showToast('Photo opened in new tab');
+                    }
+                } catch (fallbackError) {
+                    console.error('Fallback also failed:', fallbackError);
+                }
+            }
+        }
+
+        // ==================== PDF GENERATION ====================
+
+        // Generate PDF from form data
+        async function generatePDF(studentData) {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Set document properties
+                doc.setProperties({
+                    title: `Student Registration - ${studentData.surname} ${studentData.firstName}`,
+                    subject: 'Student Registration Form',
+                    author: 'First Class Senior High School',
+                    creator: 'First Class SHS Registration System'
+                });
+                
+                // Add header with school colors
+                doc.setFillColor(26, 93, 26); // Primary green
+                doc.rect(0, 0, 210, 30, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(20);
+                doc.text('FIRST CLASS SENIOR HIGH SCHOOL', 105, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text('STUDENT REGISTRATION FORM', 105, 22, { align: 'center' });
+                
+                // Reset text color
+                doc.setTextColor(0, 0, 0);
+                
+                // Add student photo if available
+                if (studentData.photoUrl || studentData.photoPreview) {
+                    try {
+                        // Add photo frame
+                        doc.setDrawColor(100, 100, 100);
+                        doc.rect(150, 40, 50, 60);
+                        
+                        // Add photo
+                        const photoSrc = studentData.photoUrl || studentData.photoPreview;
+                        doc.addImage(photoSrc, 'JPEG', 151, 41, 48, 58);
+                        
+                        // Add photo label
+                        doc.setFontSize(10);
+                        doc.text('Passport Photo', 175, 105, { align: 'center' });
+                    } catch (error) {
+                        console.error('Error adding photo to PDF:', error);
+                    }
+                }
+                
+                // Add student details
+                let yPosition = 45;
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.text('PERSONAL INFORMATION', 20, yPosition);
+                doc.setFont(undefined, 'normal');
+                
+                yPosition += 10;
+                doc.setFontSize(10);
+                doc.text(`Full Name: ${studentData.surname} ${studentData.firstName} ${studentData.otherName || ''}`, 20, yPosition);
+                
+                yPosition += 6;
+                doc.text(`Date of Birth: ${formatDate(studentData.dob)}`, 20, yPosition);
+                
+                yPosition += 6;
+                doc.text(`Gender: ${studentData.gender}`, 20, yPosition);
+                
+                yPosition += 6;
+                doc.text(`Contact Number: ${studentData.contact}`, 20, yPosition);
+                
+                yPosition += 10;
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.text('ACADEMIC INFORMATION', 20, yPosition);
+                doc.setFont(undefined, 'normal');
+                
+                yPosition += 10;
+                doc.setFontSize(10);
+                doc.text(`BECE Index Number: ${studentData.beceIndex}`, 20, yPosition);
+                
+                yPosition += 6;
+                doc.text(`Year of Completion: ${studentData.completionYear}`, 20, yPosition);
+                
+                yPosition += 6;
+                doc.text(`Program: ${studentData.program}`, 20, yPosition);
+                
+                yPosition += 6;
+                doc.text(`Elective Subjects: ${studentData.electives.join(', ')}`, 20, yPosition);
+                
+                // Add registration status if available (for admin)
+                if (studentData.status) {
+                    yPosition += 10;
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('REGISTRATION STATUS', 20, yPosition);
+                    doc.setFont(undefined, 'normal');
+                    
+                    yPosition += 10;
+                    doc.setFontSize(10);
+                    doc.text(`Status: ${studentData.status}`, 20, yPosition);
+                    
+                    if (studentData.createdAt) {
+                        yPosition += 6;
+                        doc.text(`Registration Date: ${studentData.createdAt}`, 20, yPosition);
+                    }
+                }
+                
+                // Add footer
+                const currentDate = new Date().toLocaleDateString();
+                doc.setFontSize(8);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Generated on: ${currentDate}`, 20, 280);
+                doc.text('First Class Senior High School - Registration System', 105, 280, { align: 'center' });
+                doc.text(`Page 1 of 1`, 190, 280, { align: 'right' });
+                
+                // Save the PDF
+                doc.save(`${studentData.surname}_${studentData.firstName}_registration.pdf`);
+                
+                console.log('PDF generated successfully');
+                showToast('PDF generated successfully');
+                
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showToast('Error generating PDF: ' + error.message, 'error');
+            }
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB');
+        }
+
+        // Create PDF preview for admin
+        function createAdminPDFPreview(studentData) {
+            // Clear previous content
+            pdfPreviewContent.innerHTML = '';
+            
+            // Create preview structure
+            const previewHTML = `
+                <div class="preview-header">
+                    <h1>FIRST CLASS SENIOR HIGH SCHOOL</h1>
+                    <p>STUDENT REGISTRATION FORM</p>
+                </div>
+                
+                <div class="preview-section">
+                    <h3>Personal Information</h3>
+                    <div class="preview-row">
+                        <div class="preview-label">Full Name:</div>
+                        <div class="preview-value">${studentData.surname} ${studentData.firstName} ${studentData.otherName || ''}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Date of Birth:</div>
+                        <div class="preview-value">${formatDate(studentData.dob)}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Gender:</div>
+                        <div class="preview-value">${studentData.gender}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Contact Number:</div>
+                        <div class="preview-value">${studentData.contact}</div>
+                    </div>
+                    ${studentData.photoUrl ? `
+                    <div class="preview-row">
+                        <div class="preview-label">Passport Photo:</div>
+                        <div class="preview-value">
+                            <img src="${studentData.photoUrl}" class="preview-photo" alt="Passport Photo">
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div class="preview-section">
+                    <h3>Academic Information</h3>
+                    <div class="preview-row">
+                        <div class="preview-label">BECE Index Number:</div>
+                        <div class="preview-value">${studentData.beceIndex}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Year of Completion:</div>
+                        <div class="preview-value">${studentData.completionYear}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Program:</div>
+                        <div class="preview-value">${studentData.program}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Elective Subjects:</div>
+                        <div class="preview-value">
+                            <div class="preview-subjects">
+                                ${studentData.electives.map(subject => `<span class="subject-tag">${subject}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="preview-section">
+                    <h3>Registration Status</h3>
+                    <div class="preview-row">
+                        <div class="preview-label">Status:</div>
+                        <div class="preview-value">
+                            <span class="status-badge ${studentData.status === 'registered' ? 'registered' : 'unregistered'}">
+                                ${studentData.status}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Registration Date:</div>
+                        <div class="preview-value">${studentData.createdAt}</div>
+                    </div>
+                </div>
+                
+                <div class="preview-section">
+                    <p><em>Generated on: ${new Date().toLocaleDateString()}</em></p>
+                </div>
+            `;
+            
+            pdfPreviewContent.innerHTML = previewHTML;
+            
+            // Store student data for PDF generation
+            pdfPreviewContent.dataset.studentData = JSON.stringify(studentData);
+            
+            // Show the modal
+            pdfPreviewModal.style.display = 'block';
+        }
+
+        // Create PDF preview for student form
+        function createPDFPreview(studentData) {
+            // Clear previous content
+            pdfPreviewContent.innerHTML = '';
+            
+            // Create preview structure
+            const previewHTML = `
+                <div class="preview-header">
+                    <h1>FIRST CLASS SENIOR HIGH SCHOOL</h1>
+                    <p>STUDENT REGISTRATION FORM</p>
+                </div>
+                
+                <div class="preview-section">
+                    <h3>Personal Information</h3>
+                    <div class="preview-row">
+                        <div class="preview-label">Full Name:</div>
+                        <div class="preview-value">${studentData.surname} ${studentData.firstName} ${studentData.otherName || ''}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Date of Birth:</div>
+                        <div class="preview-value">${formatDate(studentData.dob)}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Gender:</div>
+                        <div class="preview-value">${studentData.gender}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Contact Number:</div>
+                        <div class="preview-value">${studentData.contact}</div>
+                    </div>
+                    ${studentData.photoPreview ? `
+                    <div class="preview-row">
+                        <div class="preview-label">Passport Photo:</div>
+                        <div class="preview-value">
+                            <img src="${studentData.photoPreview}" class="preview-photo" alt="Passport Photo">
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div class="preview-section">
+                    <h3>Academic Information</h3>
+                    <div class="preview-row">
+                        <div class="preview-label">BECE Index Number:</div>
+                        <div class="preview-value">${studentData.beceIndex}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Year of Completion:</div>
+                        <div class="preview-value">${studentData.completionYear}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Program:</div>
+                        <div class="preview-value">${studentData.program}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Elective Subjects:</div>
+                        <div class="preview-value">
+                            <div class="preview-subjects">
+                                ${studentData.electives.map(subject => `<span class="subject-tag">${subject}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="preview-section">
+                    <p><em>Generated on: ${new Date().toLocaleDateString()}</em></p>
+                </div>
+            `;
+            
+            pdfPreviewContent.innerHTML = previewHTML;
+            
+            // Store student data for PDF generation
+            pdfPreviewContent.dataset.studentData = JSON.stringify(studentData);
+            
+            // Show the modal
+            pdfPreviewModal.style.display = 'block';
+        }
+
+        // ==================== UI FUNCTIONS ====================
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Populate elective subjects
+            populateElectiveSubjects();
+            
+            // Check authentication state
+            checkAuthState();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            console.log('App initialized successfully');
+        });
+
+        // Populate elective subjects checkboxes
+        function populateElectiveSubjects() {
+            subjectsContainer.innerHTML = '';
+            
+            electiveSubjects.forEach(subject => {
+                const checkboxContainer = document.createElement('div');
+                checkboxContainer.className = 'subject-checkbox';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `subject-${subject.replace(/\s+/g, '-')}`;
+                checkbox.name = 'electives';
+                checkbox.value = subject;
+                
+                const label = document.createElement('label');
+                label.htmlFor = `subject-${subject.replace(/\s+/g, '-')}`;
+                label.textContent = subject;
+                
+                checkboxContainer.appendChild(checkbox);
+                checkboxContainer.appendChild(label);
+                subjectsContainer.appendChild(checkboxContainer);
+            });
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('data-target');
+                    
+                    showSection(target);
+                    setActiveNav(this);
+                    
+                    if (target === 'dashboard') {
+                        // Check auth when trying to access dashboard
+                        auth.onAuthStateChanged(user => {
+                            if (user) {
+                                loadStudentData();
+                            } else {
+                                showSection('login');
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Photo upload
+            photoUpload.addEventListener('click', function() {
+                passportPhoto.click();
+            });
+            
+            passportPhoto.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        photoPreview.src = e.target.result;
+                        photoPreview.style.display = 'block';
+                    }
+                    
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            
+            // Form submission
+            studentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitForm();
+            });
+            
+            // Preview and print buttons
+            previewBtn.addEventListener('click', previewForm);
+            printBtn.addEventListener('click', printForm);
+            
+            // Admin dashboard filters
+            searchInput.addEventListener('input', filterStudents);
+            courseFilter.addEventListener('change', filterStudents);
+            statusFilter.addEventListener('change', filterStudents);
+            
+            // Tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            
+            // Login form
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                login();
+            });
+            
+            // Logout
+            logoutBtn.addEventListener('click', logout);
+            
+            // PDF Preview Modal
+            closePreview.addEventListener('click', closePDFPreview);
+            closePreviewBtn.addEventListener('click', closePDFPreview);
+            generatePdfBtn.addEventListener('click', generatePDFFromPreview);
+            printPreviewBtn.addEventListener('click', printPreview);
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === pdfPreviewModal) {
+                    closePDFPreview();
+                }
+            });
+        }
+
+        // Show specific section
+        function showSection(sectionId) {
+            contentSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        // Set active navigation
+        function setActiveNav(activeLink) {
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            activeLink.classList.add('active');
+        }
+
+        // Validate form
+        function validateForm() {
+            const electives = document.querySelectorAll('input[name="electives"]:checked');
+            
+            if (electives.length < 1 || electives.length > 4) {
+                alert('Please select between 1 and 4 elective subjects');
+                return false;
+            }
+            
+            // Check required fields
+            const requiredFields = studentForm.querySelectorAll('[required]');
+            for (let field of requiredFields) {
+                if (!field.value.trim()) {
+                    alert(`Please fill in the ${field.labels[0].textContent} field`);
+                    field.focus();
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Preview form
+        function previewForm() {
+            if (!validateForm()) return;
+            
+            // Get form data
+            const formData = new FormData(studentForm);
+            const studentData = {
+                surname: formData.get('surname'),
+                firstName: formData.get('firstName'),
+                otherName: formData.get('otherName'),
+                dob: formData.get('dob'),
+                gender: formData.get('gender'),
+                contact: formData.get('contact'),
+                beceIndex: formData.get('beceIndex'),
+                completionYear: formData.get('completionYear'),
+                program: formData.get('program'),
+                electives: Array.from(formData.getAll('electives')),
+                photoPreview: photoPreview.style.display !== 'none' ? photoPreview.src : null
+            };
+            
+            // Create PDF preview
+            createPDFPreview(studentData);
+        }
+
+        // Print form
+        function printForm() {
+            if (!validateForm()) return;
+            
+            // Create a temporary preview and print it
+            previewForm();
+            
+            // Wait for modal to open then trigger print
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        }
+
+        // Close PDF preview modal
+        function closePDFPreview() {
+            pdfPreviewModal.style.display = 'none';
+        }
+
+        // Generate PDF from preview data
+        function generatePDFFromPreview() {
+            const studentData = JSON.parse(pdfPreviewContent.dataset.studentData);
+            generatePDF(studentData);
+        }
+
+        // Print the preview
+        function printPreview() {
+            window.print();
+        }
+
+        // Render student table
+        function renderStudentTable() {
+            // Clear table
+            studentsTable.innerHTML = '';
+            
+            if (students.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="6" style="text-align: center; padding: 20px;">No students found</td>`;
+                studentsTable.appendChild(row);
+                return;
+            }
+            
+            // Add student rows
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${student.surname} ${student.firstName} ${student.otherName || ''}</td>
+                    <td>${student.program}</td>
+                    <td>${student.beceIndex}</td>
+                    <td>${student.contact}</td>
+                    <td>
+                        <span class="status-badge ${student.status === 'registered' ? 'registered' : 'unregistered'}">
+                            ${student.status}
+                        </span>
+                    </td>
+                    <td class="actions">
+                        <button class="action-btn btn-primary" onclick="viewStudent('${student.id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="action-btn btn-warning" onclick="previewStudentPDF('${student.id}')">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="action-btn ${student.status === 'registered' ? 'btn-danger' : 'btn-success'}" 
+                                onclick="toggleRegistration('${student.id}')">
+                            ${student.status === 'registered' ? '<i class="fas fa-times"></i> Unregister' : '<i class="fas fa-check"></i> Register'}
+                        </button>
+                        ${student.photoUrl ? 
+                            `<button class="action-btn btn-success" onclick="downloadPhoto('${student.id}')">
+                                <i class="fas fa-download"></i> Photo
+                            </button>` : 
+                            ''
+                        }
+                    </td>
+                `;
+                
+                studentsTable.appendChild(row);
+            });
+        }
+
+        // Preview student PDF in admin dashboard
+        function previewStudentPDF(studentId) {
+            const student = students.find(s => s.id === studentId);
+            if (student) {
+                createAdminPDFPreview(student);
+            }
+        }
+
+        // Filter students
+        function filterStudents() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const course = courseFilter.value;
+            const status = statusFilter.value;
+            
+            const filteredStudents = students.filter(student => {
+                const fullName = `${student.surname} ${student.firstName} ${student.otherName || ''}`.toLowerCase();
+                const matchesSearch = fullName.includes(searchTerm);
+                const matchesCourse = !course || student.program === course;
+                const matchesStatus = status === 'all' || student.status === status;
+                
+                return matchesSearch && matchesCourse && matchesStatus;
+            });
+            
+            // Update table with filtered students
+            studentsTable.innerHTML = '';
+            
+            if (filteredStudents.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="6" style="text-align: center; padding: 20px;">No students match your filters</td>`;
+                studentsTable.appendChild(row);
+                return;
+            }
+            
+            filteredStudents.forEach(student => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${student.surname} ${student.firstName} ${student.otherName || ''}</td>
+                    <td>${student.program}</td>
+                    <td>${student.beceIndex}</td>
+                    <td>${student.contact}</td>
+                    <td>
+                        <span class="status-badge ${student.status === 'registered' ? 'registered' : 'unregistered'}">
+                            ${student.status}
+                        </span>
+                    </td>
+                    <td class="actions">
+                        <button class="action-btn btn-primary" onclick="viewStudent('${student.id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="action-btn btn-warning" onclick="previewStudentPDF('${student.id}')">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="action-btn ${student.status === 'registered' ? 'btn-danger' : 'btn-success'}" 
+                                onclick="toggleRegistration('${student.id}')">
+                            ${student.status === 'registered' ? '<i class="fas fa-times"></i> Unregister' : '<i class="fas fa-check"></i> Register'}
+                        </button>
+                        ${student.photoUrl ? 
+                            `<button class="action-btn btn-success" onclick="downloadPhoto('${student.id}')">
+                                <i class="fas fa-download"></i> Photo
+                            </button>` : 
+                            ''
+                        }
+                    </td>
+                `;
+                
+                studentsTable.appendChild(row);
+            });
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const total = students.length;
+            const registered = students.filter(s => s.status === 'registered').length;
+            const unregistered = total - registered;
+            
+            document.getElementById('totalStudents').textContent = total;
+            document.getElementById('registeredStudents').textContent = registered;
+            document.getElementById('unregisteredStudents').textContent = unregistered;
+        }
+
+        // View student details
+        function viewStudent(studentId) {
+            const student = students.find(s => s.id === studentId);
+            if (student) {
+                let details = `STUDENT DETAILS\n\n`;
+                details += `Full Name: ${student.surname} ${student.firstName} ${student.otherName || ''}\n`;
+                details += `Date of Birth: ${student.dob}\n`;
+                details += `Gender: ${student.gender}\n`;
+                details += `Contact Number: ${student.contact}\n`;
+                details += `BECE Index Number: ${student.beceIndex}\n`;
+                details += `BECE Completion Year: ${student.completionYear}\n`;
+                details += `Program: ${student.program}\n`;
+                details += `Elective Subjects: ${student.electives.join(', ')}\n`;
+                details += `Status: ${student.status}\n`;
+                details += `Registered on: ${student.createdAt}\n`;
+                
+                if (student.photoUrl) {
+                    details += `\nPhoto: Available (click Download Photo in actions)`;
+                }
+                
+                alert(details);
+            }
+        }
+
+        // Save student data as PDF (for admin dashboard)
+        async function saveAsPDF(studentId) {
+            try {
+                const student = students.find(s => s.id === studentId);
+                generatePDF(student);
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showToast('Error generating PDF: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
