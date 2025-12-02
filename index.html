@@ -1115,6 +1115,7 @@
                                 <option value="Business">Business</option>
                                 <option value="Visual Arts">Visual Arts</option>
                                 <option value="Technical">Technical</option>
+                                <option value="Textiles">Textiles</option> <!-- ADDED TEXTILES HERE -->
                             </select>
                         </div>
                     </div>
@@ -1170,6 +1171,7 @@
                             <option value="Business">Business</option>
                             <option value="Visual Arts">Visual Arts</option>
                             <option value="Technical">Technical</option>
+                            <option value="Textiles">Textiles</option> <!-- ADDED TEXTILES HERE -->
                         </select>
                         <select id="statusFilter">
                             <option value="all">All Students</option>
@@ -1220,7 +1222,7 @@
                         </div>
                         <div class="stat-card">
                             <i class="fas fa-chart-pie"></i>
-                            <h3 id="programsCount">7</h3>
+                            <h3 id="programsCount">8</h3>
                             <p>Programs</p>
                         </div>
                     </div>
@@ -1345,14 +1347,15 @@
         const storage = firebase.storage();
         const auth = firebase.auth();
 
-        // Elective subjects data
+        // ==================== ELECTIVE SUBJECTS - INCLUDING TEXTILES ====================
         const electiveSubjects = [
             "Physics", "Chemistry", "Biology", "Elective Mathematics", "I.C.T",
             "Crop Husbandry", "General Agriculture", "Animal Husbandry", "Economics",
             "Literature In English", "History", "C. R. S", "Asante Twi", "Government",
             "French", "Geography", "Cost Accounting", "Financial Accounting", 
             "Business Management", "Food And Nutrition", "Management In Living", 
-            "G. K. A", "Clothing", "Picture Making", "Sculpture", "Graphics Design", "Leatherwork"
+            "G. K. A", "Clothing", "Picture Making", "Sculpture", "Graphics Design", 
+            "Leatherwork", "Textiles"  // ADDED TEXTILES HERE
         ];
 
         // Global students array
@@ -1411,6 +1414,8 @@
                 if (user) {
                     console.log('User is signed in:', user.email);
                     localStorage.setItem('adminLoggedIn', 'true');
+                    // If user is logged in and on registration page, keep them there
+                    // Only redirect if they're trying to access dashboard
                     const activeNav = document.querySelector('.nav-link.active');
                     if (activeNav && activeNav.getAttribute('data-target') === 'dashboard') {
                         showSection('dashboard');
@@ -1419,6 +1424,7 @@
                 } else {
                     console.log('User is signed out');
                     localStorage.removeItem('adminLoggedIn');
+                    // Don't redirect from registration to login
                     const activeNav = document.querySelector('.nav-link.active');
                     if (activeNav && activeNav.getAttribute('data-target') === 'dashboard') {
                         showSection('login');
@@ -1491,7 +1497,7 @@
 
         // ==================== FIRESTORE DATA OPERATIONS ====================
 
-        // Submit student form to Firestore
+        // Submit student form to Firestore - NO LOGIN REQUIRED
         async function submitForm() {
             // Validate form
             if (!validateForm()) {
@@ -1530,7 +1536,7 @@
                     studentData.photoUrl = photoUrl;
                 }
 
-                // Save to Firestore
+                // Save to Firestore - NO AUTHENTICATION REQUIRED
                 const docRef = await db.collection('students').add(studentData);
                 
                 console.log('Student registered with ID: ', docRef.id);
@@ -1551,14 +1557,14 @@
             }
         }
 
-        // Upload photo to Firebase Storage
+        // Upload photo to Firebase Storage - NO LOGIN REQUIRED
         async function uploadPhoto(file, studentData) {
             try {
                 // Create filename from student name
                 const fileName = `${studentData.surname}_${studentData.firstName}_${Date.now()}.jpg`;
                 const storageRef = storage.ref(`student-photos/${fileName}`);
                 
-                // Upload file
+                // Upload file - NO AUTHENTICATION REQUIRED
                 const snapshot = await storageRef.put(file);
                 
                 // Get download URL
@@ -1572,7 +1578,7 @@
             }
         }
 
-        // Load students data from Firestore
+        // Load students data from Firestore - REQUIRES LOGIN FOR ADMIN
         async function loadStudentData() {
             try {
                 showLoadingState(true);
@@ -1612,7 +1618,7 @@
             }
         }
 
-        // Toggle student registration status
+        // Toggle student registration status - REQUIRES LOGIN
         async function toggleRegistration(studentId) {
             try {
                 const student = students.find(s => s.id === studentId);
@@ -1636,7 +1642,7 @@
             }
         }
 
-        // Delete student record
+        // Delete student record - REQUIRES LOGIN
         async function deleteStudent(studentId) {
             try {
                 const student = students.find(s => s.id === studentId);
@@ -1674,7 +1680,7 @@
 
         // ==================== STORAGE OPERATIONS ====================
 
-        // Download student photo - FIXED VERSION
+        // Download student photo - FIXED VERSION - REQUIRES LOGIN
         async function downloadPhoto(studentId) {
             try {
                 const student = students.find(s => s.id === studentId);
@@ -2038,13 +2044,18 @@
             // Populate elective subjects
             populateElectiveSubjects();
             
-            // Check authentication state
+            // Check authentication state (only for admin features)
             checkAuthState();
             
             // Set up event listeners
             setupEventListeners();
             
-            console.log('App initialized successfully');
+            // Ensure registration form is always accessible by default
+            // Show registration form immediately without checking authentication
+            showSection('registration');
+            setActiveNav(document.querySelector('[data-target="registration"]'));
+            
+            console.log('App initialized successfully - Registration is public, Admin Dashboard requires login');
         });
 
         // Populate elective subjects checkboxes
@@ -2079,21 +2090,33 @@
                     e.preventDefault();
                     const target = this.getAttribute('data-target');
                     
+                    // Show the selected section
                     showSection(target);
                     setActiveNav(this);
                     
                     // Close mobile menu if open
                     mainNav.classList.remove('active');
                     
+                    // Only require login for dashboard, not for registration
                     if (target === 'dashboard') {
                         // Check auth when trying to access dashboard
                         auth.onAuthStateChanged(user => {
                             if (user) {
+                                // User is logged in, show dashboard
+                                showSection('dashboard');
+                                setActiveNav(this);
                                 loadStudentData();
                             } else {
+                                // User is not logged in, show login page
                                 showSection('login');
+                                // Keep registration nav active when showing login
+                                setActiveNav(document.querySelector('[data-target="registration"]'));
                             }
                         });
+                    } else if (target === 'registration') {
+                        // Always allow access to registration without login
+                        showSection('registration');
+                        setActiveNav(this);
                     }
                 });
             });
@@ -2121,7 +2144,7 @@
                 }
             });
             
-            // Form submission
+            // Form submission - NO LOGIN REQUIRED
             studentForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 submitForm();
@@ -2424,6 +2447,8 @@
             document.getElementById('totalStudents').textContent = total;
             document.getElementById('registeredStudents').textContent = registered;
             document.getElementById('unregisteredStudents').textContent = unregistered;
+            // Updated to 8 programs since we added Textiles
+            document.getElementById('programsCount').textContent = '8';
         }
 
         // View student details
