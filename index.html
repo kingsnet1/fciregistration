@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>First Class Senior High School - Student Registration</title>
+    <title>Sea High School - Student Registration</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -707,25 +707,71 @@
             gap: 15px;
         }
         
+        /* Print-specific styles */
         @media print {
-            nav, .btn-group, .form-actions, .modal-actions {
-                display: none !important;
+            body * {
+                visibility: hidden;
             }
             
-            .card {
-                box-shadow: none;
+            .modal,
+            .modal * {
+                visibility: visible;
             }
             
             .modal {
-                position: static;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
                 background: white;
+                margin: 0;
+                padding: 0;
+                border: none;
+                box-shadow: none;
             }
             
             .modal-content {
                 margin: 0;
+                padding: 20px;
                 width: 100%;
                 max-width: 100%;
                 box-shadow: none;
+                border: none;
+                border-top: none;
+            }
+            
+            .modal-header,
+            .modal-actions,
+            .close-btn {
+                display: none !important;
+            }
+            
+            .pdf-preview {
+                padding: 20px;
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                max-height: none;
+                overflow: visible;
+                background: white;
+            }
+            
+            .preview-header {
+                border-bottom: 3px solid var(--primary);
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+            }
+            
+            .preview-section {
+                box-shadow: none;
+                border: 1px solid #e0e0e0;
+                margin-bottom: 20px;
+            }
+            
+            .preview-photo {
+                width: 100px;
+                height: 125px;
             }
         }
         
@@ -1012,15 +1058,162 @@
         .form-group:last-child {
             margin-bottom: 0;
         }
+        
+        /* New styles for enhanced PDF buttons */
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: linear-gradient(135deg, #138496 0%, #17a2b8 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(23, 162, 184, 0.3);
+        }
+        
+        .action-btn.btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .action-btn.btn-info:hover {
+            background: #138496;
+        }
+        
+        /* Styles for PDF snapshot */
+        .pdf-snapshot-container {
+            position: fixed;
+            top: -10000px;
+            left: -10000px;
+            width: 794px; /* A4 width in pixels at 96 DPI */
+            min-height: 1123px; /* A4 height in pixels at 96 DPI */
+            background: white;
+            padding: 40px;
+            box-sizing: border-box;
+            z-index: -1000;
+        }
+        
+        .pdf-snapshot {
+            width: 100%;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        
+        .pdf-snapshot .preview-header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 20px;
+        }
+        
+        .pdf-snapshot .preview-header h1 {
+            color: var(--primary);
+            font-size: 28px;
+            margin: 0 0 10px 0;
+        }
+        
+        .pdf-snapshot .preview-header p {
+            color: #666;
+            font-size: 16px;
+            margin: 0;
+        }
+        
+        .pdf-snapshot .preview-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        
+        .pdf-snapshot .preview-section h3 {
+            color: var(--primary);
+            font-size: 18px;
+            margin: 0 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--light-green);
+        }
+        
+        .pdf-snapshot .preview-row {
+            display: flex;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .pdf-snapshot .preview-label {
+            font-weight: bold;
+            width: 180px;
+            color: #333;
+        }
+        
+        .pdf-snapshot .preview-value {
+            flex: 1;
+            color: #555;
+        }
+        
+        .pdf-snapshot .preview-photo {
+            width: 100px;
+            height: 125px;
+            object-fit: cover;
+            border: 2px solid #666;
+            border-radius: 3px;
+        }
+        
+        .pdf-snapshot .preview-subjects {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .pdf-snapshot .subject-tag {
+            background-color: #e8f5e8;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            border-left: 2px solid var(--secondary);
+        }
+        
+        .pdf-snapshot .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .pdf-snapshot .status-badge.registered {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .pdf-snapshot .status-badge.unregistered {
+            background-color: var(--warning);
+            color: #333;
+        }
+        
+        .pdf-snapshot-footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+    <!-- Hidden container for PDF snapshot -->
+    <div id="pdfSnapshotContainer" class="pdf-snapshot-container">
+        <div id="pdfSnapshot" class="pdf-snapshot">
+            <!-- PDF content will be generated here -->
+        </div>
+    </div>
+
     <header>
         <div class="container header-content">
             <div class="logo">
                 <i class="fas fa-graduation-cap"></i>
                 <div class="logo-text">
-                    <h1>First Class Senior High School</h1>
+                    <h1>Sea High School</h1>
                     <p>Excellence in Education Since 2016</p>
                 </div>
             </div>
@@ -1149,9 +1342,14 @@
             <div class="card">
                 <div class="card-header">
                     <h2><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
-                    <button class="btn btn-danger" id="logoutBtn">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
+                    <div>
+                        <button class="btn btn-info" id="bulkPrintBtn" title="Print All Students">
+                            <i class="fas fa-print"></i> Print All Students
+                        </button>
+                        <button class="btn btn-danger" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="tab-container">
@@ -1273,11 +1471,11 @@
                 <!-- Preview content will be generated here -->
             </div>
             <div class="modal-actions">
-                <button class="btn btn-primary" id="generatePdfBtn">
-                    <i class="fas fa-file-pdf"></i> Generate PDF
+                <button class="btn btn-primary" id="printExactPreviewBtn">
+                    <i class="fas fa-print"></i> Print This Preview
                 </button>
-                <button class="btn btn-success" id="printPreviewBtn">
-                    <i class="fas fa-print"></i> Print
+                <button class="btn btn-success" id="generatePdfBtn">
+                    <i class="fas fa-file-pdf"></i> Generate PDF
                 </button>
                 <button class="btn btn-danger" id="closePreviewBtn">
                     <i class="fas fa-times"></i> Close
@@ -1323,7 +1521,7 @@
                 <a href="#"><i class="fas fa-phone"></i> Contact</a>
             </div>
             <div class="copyright">
-                &copy; 2025 First Class Senior High School. All rights reserved. | Powered By KingsNet Web Solutions.
+                &copy; 2025 Sea High School. All rights reserved. | Powered By KingsNet Web Solutions.
             </div>
         </div>
     </footer>
@@ -1361,6 +1559,7 @@
         // Global students array
         let students = [];
         let studentToDelete = null;
+        let currentPreviewStudent = null;
 
         // DOM elements
         const navLinks = document.querySelectorAll('.nav-link');
@@ -1386,7 +1585,7 @@
         const closePreview = document.getElementById('closePreview');
         const closePreviewBtn = document.getElementById('closePreviewBtn');
         const generatePdfBtn = document.getElementById('generatePdfBtn');
-        const printPreviewBtn = document.getElementById('printPreviewBtn');
+        const printExactPreviewBtn = document.getElementById('printExactPreviewBtn');
         const toast = document.getElementById('toast');
         const toastMessage = document.getElementById('toastMessage');
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -1395,6 +1594,9 @@
         const deleteStudentInfo = document.getElementById('deleteStudentInfo');
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
         const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const bulkPrintBtn = document.getElementById('bulkPrintBtn');
+        const pdfSnapshotContainer = document.getElementById('pdfSnapshotContainer');
+        const pdfSnapshot = document.getElementById('pdfSnapshot');
 
         // ==================== TOAST NOTIFICATION ====================
         function showToast(message, type = 'success') {
@@ -1734,146 +1936,543 @@
             }
         }
 
-        // ==================== PDF GENERATION ====================
+        // ==================== EXACT PREVIEW PRINTING ====================
+
+        // Print the exact preview page with photo
+        function printExactPreview() {
+            try {
+                if (!currentPreviewStudent) {
+                    // Try to get student data from the preview content
+                    const previewContent = document.getElementById('pdfPreviewContent');
+                    if (previewContent && previewContent.innerHTML) {
+                        // Extract data from the preview HTML
+                        const studentData = extractDataFromPreview(previewContent.innerHTML);
+                        if (studentData) {
+                            currentPreviewStudent = studentData;
+                        }
+                    }
+                }
+                
+                if (!currentPreviewStudent) {
+                    showToast('No student data available for printing', 'error');
+                    return;
+                }
+
+                showToast('Preparing for printing...', 'success');
+                
+                // Create a snapshot of the preview for printing
+                createPrintSnapshot(currentPreviewStudent);
+                
+                // Wait a moment for the snapshot to render
+                setTimeout(() => {
+                    // Trigger print using the browser's print function
+                    printSnapshot();
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error printing preview:', error);
+                showToast('Error printing: ' + error.message, 'error');
+            }
+        }
+
+        // Extract student data from preview HTML
+        function extractDataFromPreview(previewHTML) {
+            try {
+                // Create a temporary div to parse the HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = previewHTML;
+                
+                // Extract data from the preview
+                const studentData = {};
+                
+                // Extract name
+                const nameElement = tempDiv.querySelector('.preview-row .preview-value');
+                if (nameElement) {
+                    const nameParts = nameElement.textContent.trim().split(' ');
+                    studentData.surname = nameParts[0] || '';
+                    studentData.firstName = nameParts[1] || '';
+                    studentData.otherName = nameParts.slice(2).join(' ') || '';
+                }
+                
+                // Extract other fields
+                const rows = tempDiv.querySelectorAll('.preview-row');
+                rows.forEach(row => {
+                    const label = row.querySelector('.preview-label');
+                    const value = row.querySelector('.preview-value');
+                    
+                    if (label && value) {
+                        const labelText = label.textContent.trim().replace(':', '');
+                        const valueText = value.textContent.trim();
+                        
+                        switch (labelText) {
+                            case 'Date of Birth':
+                                studentData.dob = valueText;
+                                break;
+                            case 'Gender':
+                                studentData.gender = valueText;
+                                break;
+                            case 'Contact Number':
+                                studentData.contact = valueText;
+                                break;
+                            case 'BECE Index Number':
+                                studentData.beceIndex = valueText;
+                                break;
+                            case 'Year of Completion':
+                                studentData.completionYear = valueText;
+                                break;
+                            case 'Program':
+                                studentData.program = valueText;
+                                break;
+                            case 'Status':
+                                studentData.status = valueText.toLowerCase().replace('registered', 'registered').replace('unregistered', 'unregistered');
+                                break;
+                            case 'Registration Date':
+                                studentData.createdAt = valueText;
+                                break;
+                        }
+                    }
+                });
+                
+                // Extract photo URL if available
+                const photoImg = tempDiv.querySelector('.preview-photo');
+                if (photoImg && photoImg.src) {
+                    studentData.photoUrl = photoImg.src;
+                }
+                
+                // Extract elective subjects
+                const subjectTags = tempDiv.querySelectorAll('.subject-tag');
+                if (subjectTags.length > 0) {
+                    studentData.electives = Array.from(subjectTags).map(tag => tag.textContent.trim());
+                }
+                
+                return studentData;
+                
+            } catch (error) {
+                console.error('Error extracting data from preview:', error);
+                return null;
+            }
+        }
+
+        // Create a print snapshot of the student preview
+        function createPrintSnapshot(studentData) {
+            // Clear previous snapshot
+            pdfSnapshot.innerHTML = '';
+            
+            // Create snapshot content
+            const snapshotHTML = `
+                <div class="preview-header">
+                    <h1>SEA HIGH SCHOOL</h1>
+                    <p>STUDENT REGISTRATION FORM</p>
+                </div>
+                
+                <div class="preview-section">
+                    <h3>Personal Information</h3>
+                    <div class="preview-row">
+                        <div class="preview-label">Full Name:</div>
+                        <div class="preview-value">${studentData.surname} ${studentData.firstName} ${studentData.otherName || ''}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Date of Birth:</div>
+                        <div class="preview-value">${formatDate(studentData.dob)}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Gender:</div>
+                        <div class="preview-value">${studentData.gender}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Contact Number:</div>
+                        <div class="preview-value">${studentData.contact}</div>
+                    </div>
+                    ${studentData.photoUrl || studentData.photoPreview ? `
+                    <div class="preview-row">
+                        <div class="preview-label">Passport Photo:</div>
+                        <div class="preview-value">
+                            <img src="${studentData.photoUrl || studentData.photoPreview}" class="preview-photo" alt="Passport Photo" crossorigin="anonymous" onerror="this.style.display='none'">
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div class="preview-section">
+                    <h3>Academic Information</h3>
+                    <div class="preview-row">
+                        <div class="preview-label">BECE Index Number:</div>
+                        <div class="preview-value">${studentData.beceIndex}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Year of Completion:</div>
+                        <div class="preview-value">${studentData.completionYear}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Program:</div>
+                        <div class="preview-value">${studentData.program}</div>
+                    </div>
+                    <div class="preview-row">
+                        <div class="preview-label">Elective Subjects:</div>
+                        <div class="preview-value">
+                            <div class="preview-subjects">
+                                ${studentData.electives ? studentData.electives.map(subject => `<span class="subject-tag">${subject}</span>`).join('') : 'None'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${studentData.status ? `
+                <div class="preview-section">
+                    <h3>Registration Status</h3>
+                    <div class="preview-row">
+                        <div class="preview-label">Status:</div>
+                        <div class="preview-value">
+                            <span class="status-badge ${studentData.status === 'registered' ? 'registered' : 'unregistered'}">
+                                ${studentData.status.toUpperCase()}
+                            </span>
+                        </div>
+                    </div>
+                    ${studentData.createdAt ? `
+                    <div class="preview-row">
+                        <div class="preview-label">Registration Date:</div>
+                        <div class="preview-value">${studentData.createdAt}</div>
+                    </div>
+                    ` : ''}
+                </div>
+                ` : ''}
+                
+                <div class="pdf-snapshot-footer">
+                    <p>Generated on: ${new Date().toLocaleDateString()} | Sea High School Student Management System</p>
+                </div>
+            `;
+            
+            pdfSnapshot.innerHTML = snapshotHTML;
+        }
+
+        // Print the snapshot directly
+        function printSnapshot() {
+            // First, make the snapshot container visible for printing
+            pdfSnapshotContainer.style.position = 'absolute';
+            pdfSnapshotContainer.style.top = '0';
+            pdfSnapshotContainer.style.left = '0';
+            pdfSnapshotContainer.style.zIndex = '9999';
+            pdfSnapshotContainer.style.backgroundColor = 'white';
+            
+            // Trigger print
+            window.print();
+            
+            // Reset the snapshot container position after printing
+            setTimeout(() => {
+                pdfSnapshotContainer.style.position = 'fixed';
+                pdfSnapshotContainer.style.top = '-10000px';
+                pdfSnapshotContainer.style.left = '-10000px';
+                pdfSnapshotContainer.style.zIndex = '-1000';
+            }, 100);
+        }
+
+        // ==================== PDF GENERATION FUNCTIONS ====================
 
         // Generate PDF from form data
         async function generatePDF(studentData) {
+            try {
+                // Create snapshot for PDF generation
+                createPrintSnapshot(studentData);
+                
+                // Use html2canvas to capture the snapshot
+                setTimeout(async () => {
+                    try {
+                        const canvas = await html2canvas(pdfSnapshotContainer, {
+                            scale: 2, // Higher resolution
+                            useCORS: true, // Allow cross-origin images
+                            allowTaint: true, // Allow tainted images
+                            logging: false,
+                            backgroundColor: '#ffffff'
+                        });
+                        
+                        const { jsPDF } = window.jspdf;
+                        const doc = new jsPDF({
+                            orientation: 'portrait',
+                            unit: 'mm',
+                            format: 'a4'
+                        });
+                        
+                        // Calculate dimensions
+                        const imgWidth = 210; // A4 width in mm
+                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                        
+                        // Add image to PDF
+                        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                        doc.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+                        
+                        // Save the PDF
+                        const fileName = `SeaHS_${studentData.surname}_${studentData.firstName}_${new Date().getTime()}.pdf`;
+                        doc.save(fileName);
+                        
+                        showToast('PDF generated successfully');
+                        
+                    } catch (error) {
+                        console.error('Error generating PDF with html2canvas:', error);
+                        // Fallback to text-only PDF
+                        generateTextPDF(studentData);
+                    }
+                }, 1000); // Wait for images to load
+                
+            } catch (error) {
+                console.error('Error in PDF generation:', error);
+                showToast('Error generating PDF: ' + error.message, 'error');
+            }
+        }
+
+        // Fallback text-only PDF generator
+        function generateTextPDF(studentData) {
             try {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 
                 // Set document properties
                 doc.setProperties({
-                    title: `Student Registration - ${studentData.surname} ${studentData.firstName}`,
-                    subject: 'Student Registration Form',
-                    author: 'First Class Senior High School',
-                    creator: 'First Class SHS Registration System'
+                    title: `Student Details - ${studentData.surname} ${studentData.firstName}`,
+                    subject: 'Student Registration',
+                    author: 'Sea High School',
+                    creator: 'Sea High School System'
                 });
                 
-                // Add header with school colors
-                doc.setFillColor(26, 93, 26); // Primary green
+                // Add header
+                doc.setFillColor(26, 93, 26);
                 doc.rect(0, 0, 210, 30, 'F');
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(20);
-                doc.text('FIRST CLASS SENIOR HIGH SCHOOL', 105, 15, { align: 'center' });
+                doc.text('SEA HIGH SCHOOL', 105, 15, { align: 'center' });
                 doc.setFontSize(12);
                 doc.text('STUDENT REGISTRATION FORM', 105, 22, { align: 'center' });
                 
-                // Reset text color
                 doc.setTextColor(0, 0, 0);
                 
-                // Add student photo if available
-                if (studentData.photoUrl || studentData.photoPreview) {
-                    try {
-                        // Add photo frame
-                        doc.setDrawColor(100, 100, 100);
-                        doc.rect(150, 40, 50, 60);
-                        
-                        // Add photo
-                        const photoSrc = studentData.photoUrl || studentData.photoPreview;
-                        doc.addImage(photoSrc, 'JPEG', 151, 41, 48, 58);
-                        
-                        // Add photo label
-                        doc.setFontSize(10);
-                        doc.text('Passport Photo', 175, 105, { align: 'center' });
-                    } catch (error) {
-                        console.error('Error adding photo to PDF:', error);
-                    }
-                }
-                
-                // Add student details
-                let yPosition = 45;
+                // Personal Information
+                let yPos = 40;
                 doc.setFontSize(14);
                 doc.setFont(undefined, 'bold');
-                doc.text('PERSONAL INFORMATION', 20, yPosition);
+                doc.text('PERSONAL INFORMATION', 20, yPos);
                 doc.setFont(undefined, 'normal');
                 
-                yPosition += 10;
+                yPos += 10;
                 doc.setFontSize(10);
-                doc.text(`Full Name: ${studentData.surname} ${studentData.firstName} ${studentData.otherName || ''}`, 20, yPosition);
+                doc.text(`Full Name: ${studentData.surname} ${studentData.firstName} ${studentData.otherName || ''}`, 20, yPos);
                 
-                yPosition += 6;
-                doc.text(`Date of Birth: ${formatDate(studentData.dob)}`, 20, yPosition);
+                yPos += 6;
+                doc.text(`Date of Birth: ${formatDate(studentData.dob)}`, 20, yPos);
                 
-                yPosition += 6;
-                doc.text(`Gender: ${studentData.gender}`, 20, yPosition);
+                yPos += 6;
+                doc.text(`Gender: ${studentData.gender}`, 20, yPos);
                 
-                yPosition += 6;
-                doc.text(`Contact Number: ${studentData.contact}`, 20, yPosition);
+                yPos += 6;
+                doc.text(`Contact: ${studentData.contact}`, 20, yPos);
                 
-                yPosition += 10;
+                yPos += 6;
+                doc.text(`Student ID: ${studentData.id || 'N/A'}`, 20, yPos);
+                
+                // Academic Information
+                yPos += 10;
                 doc.setFontSize(14);
                 doc.setFont(undefined, 'bold');
-                doc.text('ACADEMIC INFORMATION', 20, yPosition);
+                doc.text('ACADEMIC INFORMATION', 20, yPos);
                 doc.setFont(undefined, 'normal');
                 
-                yPosition += 10;
+                yPos += 10;
                 doc.setFontSize(10);
-                doc.text(`BECE Index Number: ${studentData.beceIndex}`, 20, yPosition);
+                doc.text(`BECE Index: ${studentData.beceIndex}`, 20, yPos);
                 
-                yPosition += 6;
-                doc.text(`Year of Completion: ${studentData.completionYear}`, 20, yPosition);
+                yPos += 6;
+                doc.text(`Completion Year: ${studentData.completionYear}`, 20, yPos);
                 
-                yPosition += 6;
-                doc.text(`Program: ${studentData.program}`, 20, yPosition);
+                yPos += 6;
+                doc.text(`Program: ${studentData.program}`, 20, yPos);
                 
-                yPosition += 6;
-                doc.text(`Elective Subjects: ${studentData.electives.join(', ')}`, 20, yPosition);
+                yPos += 6;
+                doc.text(`Electives: ${studentData.electives ? studentData.electives.join(', ') : 'None'}`, 20, yPos);
                 
-                // Add registration status if available (for admin)
+                // Registration Status
                 if (studentData.status) {
-                    yPosition += 10;
+                    yPos += 10;
                     doc.setFontSize(14);
                     doc.setFont(undefined, 'bold');
-                    doc.text('REGISTRATION STATUS', 20, yPosition);
+                    doc.text('REGISTRATION STATUS', 20, yPos);
                     doc.setFont(undefined, 'normal');
                     
-                    yPosition += 10;
+                    yPos += 10;
                     doc.setFontSize(10);
-                    doc.text(`Status: ${studentData.status}`, 20, yPosition);
+                    doc.text(`Status: ${studentData.status.toUpperCase()}`, 20, yPos);
                     
                     if (studentData.createdAt) {
-                        yPosition += 6;
-                        doc.text(`Registration Date: ${studentData.createdAt}`, 20, yPosition);
+                        yPos += 6;
+                        doc.text(`Registered: ${studentData.createdAt}`, 20, yPos);
                     }
                 }
                 
-                // Add footer
-                const currentDate = new Date().toLocaleDateString();
+                // Footer
                 doc.setFontSize(8);
                 doc.setTextColor(100, 100, 100);
-                doc.text(`Generated on: ${currentDate}`, 20, 280);
-                doc.text('First Class Senior High School - Registration System', 105, 280, { align: 'center' });
-                doc.text(`Page 1 of 1`, 190, 280, { align: 'right' });
+                doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 280);
+                doc.text('Sea High School - Official Document', 105, 280, { align: 'center' });
                 
-                // Save the PDF
-                doc.save(`${studentData.surname}_${studentData.firstName}_registration.pdf`);
+                // Save
+                const fileName = `SeaHS_${studentData.surname}_${studentData.firstName}_${new Date().getTime()}.pdf`;
+                doc.save(fileName);
                 
-                console.log('PDF generated successfully');
                 showToast('PDF generated successfully');
                 
             } catch (error) {
-                console.error('Error generating PDF:', error);
-                showToast('Error generating PDF: ' + error.message, 'error');
+                console.error('Error in fallback PDF generation:', error);
+                showToast('Failed to generate PDF', 'error');
+            }
+        }
+
+        // Generate bulk PDF for all students
+        async function generateBulkPDF() {
+            try {
+                if (students.length === 0) {
+                    showToast('No students to print', 'warning');
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Add header
+                doc.setFillColor(26, 93, 26);
+                doc.rect(0, 0, 210, 30, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(20);
+                doc.text('SEA HIGH SCHOOL', 105, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text('ALL STUDENTS REPORT', 105, 22, { align: 'center' });
+                
+                doc.setTextColor(0, 0, 0);
+                
+                let yPos = 40;
+                let page = 1;
+                
+                // Summary
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('SUMMARY', 20, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(10);
+                
+                yPos += 8;
+                doc.text(`Total Students: ${students.length}`, 20, yPos);
+                yPos += 6;
+                doc.text(`Registered: ${students.filter(s => s.status === 'registered').length}`, 20, yPos);
+                yPos += 6;
+                doc.text(`Unregistered: ${students.filter(s => s.status === 'unregistered').length}`, 20, yPos);
+                yPos += 6;
+                doc.text(`Report Date: ${new Date().toLocaleDateString()}`, 20, yPos);
+                
+                yPos += 15;
+                
+                // Table header
+                doc.setFont(undefined, 'bold');
+                doc.text('No.', 20, yPos);
+                doc.text('Name', 30, yPos);
+                doc.text('Program', 80, yPos);
+                doc.text('BECE Index', 120, yPos);
+                doc.text('Status', 160, yPos);
+                doc.setFont(undefined, 'normal');
+                
+                yPos += 8;
+                doc.line(20, yPos, 190, yPos);
+                yPos += 4;
+                
+                // Student rows
+                students.forEach((student, index) => {
+                    if (yPos > 270) {
+                        doc.addPage();
+                        page++;
+                        yPos = 20;
+                        
+                        // New page header
+                        doc.setFillColor(26, 93, 26);
+                        doc.rect(0, 0, 210, 15, 'F');
+                        doc.setTextColor(255, 255, 255);
+                        doc.setFontSize(12);
+                        doc.text(`SEA HIGH SCHOOL - Page ${page}`, 105, 8, { align: 'center' });
+                        doc.setTextColor(0, 0, 0);
+                        doc.setFontSize(10);
+                        
+                        yPos = 30;
+                        doc.setFont(undefined, 'bold');
+                        doc.text('No.', 20, yPos);
+                        doc.text('Name', 30, yPos);
+                        doc.text('Program', 80, yPos);
+                        doc.text('BECE Index', 120, yPos);
+                        doc.text('Status', 160, yPos);
+                        doc.setFont(undefined, 'normal');
+                        
+                        yPos += 8;
+                        doc.line(20, yPos, 190, yPos);
+                        yPos += 4;
+                    }
+                    
+                    doc.text(`${index + 1}.`, 20, yPos);
+                    doc.text(`${student.surname} ${student.firstName}`, 30, yPos);
+                    doc.text(student.program, 80, yPos);
+                    doc.text(student.beceIndex, 120, yPos);
+                    
+                    // Color code status
+                    if (student.status === 'registered') {
+                        doc.setTextColor(39, 174, 96);
+                    } else {
+                        doc.setTextColor(231, 76, 60);
+                    }
+                    doc.text(student.status.toUpperCase(), 160, yPos);
+                    doc.setTextColor(0, 0, 0);
+                    
+                    yPos += 8;
+                });
+                
+                // Footer
+                const totalPages = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= totalPages; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text(`Page ${i} of ${totalPages}`, 190, 285, { align: 'right' });
+                    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 285);
+                }
+                
+                // Save
+                doc.save(`SeaHS_All_Students_${new Date().toISOString().slice(0, 10)}.pdf`);
+                
+                showToast(`Bulk PDF generated for ${students.length} students`);
+                
+            } catch (error) {
+                console.error('Error generating bulk PDF:', error);
+                showToast('Error generating bulk PDF: ' + error.message, 'error');
             }
         }
 
         // Format date for display
         function formatDate(dateString) {
             if (!dateString) return 'N/A';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-GB');
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            } catch (error) {
+                return dateString;
+            }
         }
 
         // Create PDF preview for admin
         function createAdminPDFPreview(studentData) {
+            currentPreviewStudent = studentData;
+            
             // Clear previous content
             pdfPreviewContent.innerHTML = '';
             
             // Create preview structure
             const previewHTML = `
                 <div class="preview-header">
-                    <h1>FIRST CLASS SENIOR HIGH SCHOOL</h1>
+                    <h1>SEA HIGH SCHOOL</h1>
                     <p>STUDENT REGISTRATION FORM</p>
                 </div>
                 
@@ -1923,7 +2522,7 @@
                         <div class="preview-label">Elective Subjects:</div>
                         <div class="preview-value">
                             <div class="preview-subjects">
-                                ${studentData.electives.map(subject => `<span class="subject-tag">${subject}</span>`).join('')}
+                                ${studentData.electives ? studentData.electives.map(subject => `<span class="subject-tag">${subject}</span>`).join('') : 'None'}
                             </div>
                         </div>
                     </div>
@@ -1935,7 +2534,7 @@
                         <div class="preview-label">Status:</div>
                         <div class="preview-value">
                             <span class="status-badge ${studentData.status === 'registered' ? 'registered' : 'unregistered'}">
-                                ${studentData.status}
+                                ${studentData.status.toUpperCase()}
                             </span>
                         </div>
                     </div>
@@ -1952,22 +2551,21 @@
             
             pdfPreviewContent.innerHTML = previewHTML;
             
-            // Store student data for PDF generation
-            pdfPreviewContent.dataset.studentData = JSON.stringify(studentData);
-            
             // Show the modal
             pdfPreviewModal.style.display = 'block';
         }
 
         // Create PDF preview for student form
         function createPDFPreview(studentData) {
+            currentPreviewStudent = studentData;
+            
             // Clear previous content
             pdfPreviewContent.innerHTML = '';
             
             // Create preview structure
             const previewHTML = `
                 <div class="preview-header">
-                    <h1>FIRST CLASS SENIOR HIGH SCHOOL</h1>
+                    <h1>SEA HIGH SCHOOL</h1>
                     <p>STUDENT REGISTRATION FORM</p>
                 </div>
                 
@@ -2030,11 +2628,14 @@
             
             pdfPreviewContent.innerHTML = previewHTML;
             
-            // Store student data for PDF generation
-            pdfPreviewContent.dataset.studentData = JSON.stringify(studentData);
-            
             // Show the modal
             pdfPreviewModal.style.display = 'block';
+        }
+
+        // Close PDF preview modal
+        function closePDFPreview() {
+            pdfPreviewModal.style.display = 'none';
+            // Don't clear currentPreviewStudent here - we need it for printing
         }
 
         // ==================== UI FUNCTIONS ====================
@@ -2154,6 +2755,9 @@
             previewBtn.addEventListener('click', previewForm);
             printBtn.addEventListener('click', printForm);
             
+            // Bulk print button
+            bulkPrintBtn.addEventListener('click', generateBulkPDF);
+            
             // Admin dashboard filters
             searchInput.addEventListener('input', filterStudents);
             courseFilter.addEventListener('change', filterStudents);
@@ -2185,7 +2789,7 @@
             closePreview.addEventListener('click', closePDFPreview);
             closePreviewBtn.addEventListener('click', closePDFPreview);
             generatePdfBtn.addEventListener('click', generatePDFFromPreview);
-            printPreviewBtn.addEventListener('click', printPreview);
+            printExactPreviewBtn.addEventListener('click', printExactPreview);
             
             // Delete Modal
             confirmDeleteBtn.addEventListener('click', function() {
@@ -2282,24 +2886,15 @@
             
             // Wait for modal to open then trigger print
             setTimeout(() => {
-                window.print();
+                printExactPreview();
             }, 500);
-        }
-
-        // Close PDF preview modal
-        function closePDFPreview() {
-            pdfPreviewModal.style.display = 'none';
         }
 
         // Generate PDF from preview data
         function generatePDFFromPreview() {
-            const studentData = JSON.parse(pdfPreviewContent.dataset.studentData);
-            generatePDF(studentData);
-        }
-
-        // Print the preview
-        function printPreview() {
-            window.print();
+            if (currentPreviewStudent) {
+                generatePDF(currentPreviewStudent);
+            }
         }
 
         // Render student table
@@ -2332,8 +2927,11 @@
                         <button class="action-btn btn-primary" onclick="viewStudent('${student.id}')">
                             <i class="fas fa-eye"></i> View
                         </button>
-                        <button class="action-btn btn-warning" onclick="previewStudentPDF('${student.id}')">
+                        <button class="action-btn btn-info" onclick="generateStudentPDF('${student.id}')">
                             <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="action-btn btn-warning" onclick="previewStudentPDF('${student.id}')">
+                            <i class="fas fa-eye"></i> Preview
                         </button>
                         <button class="action-btn ${student.status === 'registered' ? 'btn-danger' : 'btn-success'}" 
                                 onclick="toggleRegistration('${student.id}')">
@@ -2360,6 +2958,14 @@
             const student = students.find(s => s.id === studentId);
             if (student) {
                 createAdminPDFPreview(student);
+            }
+        }
+
+        // Generate student PDF
+        async function generateStudentPDF(studentId) {
+            const student = students.find(s => s.id === studentId);
+            if (student) {
+                generatePDF(student);
             }
         }
 
@@ -2415,8 +3021,11 @@
                         <button class="action-btn btn-primary" onclick="viewStudent('${student.id}')">
                             <i class="fas fa-eye"></i> View
                         </button>
-                        <button class="action-btn btn-warning" onclick="previewStudentPDF('${student.id}')">
+                        <button class="action-btn btn-info" onclick="generateStudentPDF('${student.id}')">
                             <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="action-btn btn-warning" onclick="previewStudentPDF('${student.id}')">
+                            <i class="fas fa-eye"></i> Preview
                         </button>
                         <button class="action-btn ${student.status === 'registered' ? 'btn-danger' : 'btn-success'}" 
                                 onclick="toggleRegistration('${student.id}')">
@@ -2455,34 +3064,27 @@
         function viewStudent(studentId) {
             const student = students.find(s => s.id === studentId);
             if (student) {
-                let details = `STUDENT DETAILS\n\n`;
-                details += `Full Name: ${student.surname} ${student.firstName} ${student.otherName || ''}\n`;
-                details += `Date of Birth: ${student.dob}\n`;
-                details += `Gender: ${student.gender}\n`;
-                details += `Contact Number: ${student.contact}\n`;
-                details += `BECE Index Number: ${student.beceIndex}\n`;
-                details += `BECE Completion Year: ${student.completionYear}\n`;
-                details += `Program: ${student.program}\n`;
-                details += `Elective Subjects: ${student.electives.join(', ')}\n`;
-                details += `Status: ${student.status}\n`;
-                details += `Registered on: ${student.createdAt}\n`;
+                let details = `SEA HIGH SCHOOL - STUDENT DETAILS\n\n`;
+                details += `========================================\n\n`;
+                details += `FULL NAME: ${student.surname} ${student.firstName} ${student.otherName || ''}\n`;
+                details += `DATE OF BIRTH: ${student.dob}\n`;
+                details += `GENDER: ${student.gender}\n`;
+                details += `CONTACT: ${student.contact}\n\n`;
+                details += `BECE INDEX: ${student.beceIndex}\n`;
+                details += `COMPLETION YEAR: ${student.completionYear}\n`;
+                details += `PROGRAM: ${student.program}\n`;
+                details += `ELECTIVES: ${student.electives ? student.electives.join(', ') : 'None'}\n\n`;
+                details += `STATUS: ${student.status.toUpperCase()}\n`;
+                details += `REGISTERED ON: ${student.createdAt}\n`;
+                details += `STUDENT ID: ${student.id}\n\n`;
+                details += `========================================\n`;
+                details += `Generated: ${new Date().toLocaleDateString()}\n`;
                 
                 if (student.photoUrl) {
-                    details += `\nPhoto: Available (click Download Photo in actions)`;
+                    details += `\nNOTE: Passport photo is available (click Download Photo button)`;
                 }
                 
                 alert(details);
-            }
-        }
-
-        // Save student data as PDF (for admin dashboard)
-        async function saveAsPDF(studentId) {
-            try {
-                const student = students.find(s => s.id === studentId);
-                generatePDF(student);
-            } catch (error) {
-                console.error('Error generating PDF:', error);
-                showToast('Error generating PDF: ' + error.message, 'error');
             }
         }
     </script>
